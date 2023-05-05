@@ -1,46 +1,67 @@
+
 <!-- Main Content -->
 <section class="container p-6 mx-auto my-8 bg-secondary">
     <div class="relative flex flex-col rounded">
         <div class="mb-6 font-bold">Upload Video</div>
+<ng-container>
+    <span *ngIf="!ffmpegService.isReady; else uploadEditorCtr" class="p-8 text-6xl text-center material-icons animate-spin">
+        settings
+    </span>
+</ng-container> 
+<ng-template #uploadEditorCtr>
+    <!-- Upload Dropbox -->
+    <ng-container *ngIf="!(this.nextStep); else formTem">
+    <div  app-event-blocker  
+    (dragend)="isDragover=false"
+    (dragover)="isDragover=true" 
+    (dragenter)="isDragover=true"
+    (dragleave)="isDragover=false"
+    (mouseleave)="isDragover=false"
+    (drop)="storeFile($event)" 
+    [ngClass]="{
+        'bg-indigo-400 border-indigo-400 border-solid' : isDragover
+    }"
+    class="w-full px-10 py-40 text-xl text-center transition duration-500 border border-gray-400 border-dashed rounded cursor-pointer hover:text-white hover:bg-indigo-400 hover:border-indigo-400 hover:border-solid">
+        <h5>Drop your file here (mp4 only!)</h5>
+        <span *ngIf="this.ffmpegService.isRunning" class="p-8 text-6xl text-center material-icons animate-spin">autorenew</span>
+</div>   
+<input type="file" class="mt-4" (change)="storeFile($event)">
+</ng-container>
+    <!-- Video Editor --> 
+        <!-- Form -->  
+        <ng-template  #formTem>
+                    <app-alert *ngIf="showAlert" [color]="alertColor">
+                        <p>
+                            {{alertMsg}}</p> 
+                            <p *ngIf="showPercentage">{{precentage | percent}}</p>
+                    </app-alert>
+        <form [formGroup]="uploadForm" (ngSubmit)="uploadFile()">
+            <!-- Screenshots -->
+            <h2 class="mb-4 text-xl">Select a Thumbnail</h2>
+            <div class="grid grid-cols-1 gap-4 lg:grid-cols-3"> 
+                <div *ngFor="let screenshot of screenshots"  [ngClass]="{'border-green-400':selectedScreenshot===screenshot, 'border-transparent':screenshot!==selectedScreenshot }" class="border-8 cursor-pointer">
+                    <img [src]="screenshot | safeURL" (click)="selectedScreenshot=screenshot">
+                </div>
+            </div>
 
-        <!-- Upload Dropbox -->
-        <div class="w-full px-10 py-40 text-xl text-center transition duration-500 border border-gray-400 border-dashed rounded cursor-pointer hover:text-white hover:bg-indigo-400 hover:border-indigo-400 hover:border-solid">
-            <h5>Drop your file here (mp4 only!)</h5>
+            <!-- Title -->
+            <div class="mt-4">
+                <label class="block mb-4 text-xl">Title</label>
+                <app-input placeholder="Enter title" type="text" [control]="uploadForm.controls.title"/>
+            </div>
+
+            <div class="mt-4 space-x-4 text-right">
+                <button [disabled]="inSubmition" [ngClass]="{'opacity-50':inSubmition ,'hover-bg-indigo-700':!inSubmition}" type="submit"
+                    class="inline-flex justify-center px-4 py-2 text-white bg-indigo-600 border border-transparent rounded-md shadow-sm focus:outline-none ">
+                    Publish
+                </button> 
+                <button type="button" routerLink="/manage"
+                    class="inline-flex justify-center px-4 py-2 text-white bg-red-600 border border-transparent rounded-md shadow-sm focus:outline-none">
+                    Cancel
+                </button>
+            </div>
+        </form>
+        </ng-template>
+</ng-template>
         </div>
-
-        <!-- Video Editor -->
-        <div>
-
-            <!-- Form -->
-            <form>
-                <!-- Screenshots -->
-                <h2 class="mb-4 text-xl">Select a Thumbnail</h2>
-                <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
-                    <div class="border-8 border-green-400 cursor-pointer">
-                        <img src="assets/img/1.jpg">
-                    </div>
-                    <div class="border-8 border-transparent cursor-pointer">
-                        <img src="assets/img/2.jpg">
-                    </div>
-                    <div class="border-8 border-transparent cursor-pointer">
-                        <img src="assets/img/3.jpg">
-                    </div>
-                </div>
-
-                <!-- Title -->
-                <div class="mt-4">
-                    <label class="block mb-4 text-xl">Title</label>
-                    <input type="text" class="block w-full py-1.5 px-3 text-gray-200 border border-gray-400 transition
-            duration-500 focus:outline-none rounded bg-transparent focus:border-indigo-400">
-                </div>
-
-                <div class="mt-4 text-right">
-                    <button type="submit"
-                        class="inline-flex justify-center px-4 py-2 text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none">
-                        Publish
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
 </section>
